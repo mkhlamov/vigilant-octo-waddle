@@ -1,3 +1,5 @@
+using Zenject;
+
 namespace CardMatch.Card
 {
     public class CardModel
@@ -12,6 +14,11 @@ namespace CardMatch.Card
             this.TypeId = typeId;
             this.State = CardState.FaceDown;
         }
+        
+        public class Factory : PlaceholderFactory<int, int, CardModel>
+        {
+        }
+
     }
     
     public enum CardState

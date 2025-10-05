@@ -255,7 +255,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d92e2b0cfd541b0937853b7056da991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 615694937645065224, guid: 29457f163756e4a21aaaf196c539847a, type: 3}
 --- !u!1 &629478536
 GameObject:
   m_ObjectHideFlags: 0
@@ -489,6 +488,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridContainer: {fileID: 629334483}
+  cardPresenterPrefab: {fileID: 6909547005740838154, guid: 29457f163756e4a21aaaf196c539847a, type: 3}
 --- !u!114 &1586156399
 MonoBehaviour:
   m_ObjectHideFlags: 0

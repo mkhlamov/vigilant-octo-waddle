@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 81817074818824947}
   - component: {fileID: 5889199381552041949}
   - component: {fileID: 615694937645065224}
+  - component: {fileID: 3875549114241925644}
   m_Layer: 0
   m_Name: CardView
   m_TagString: Untagged
@@ -136,3 +137,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardImage: {fileID: 81817074818824947}
   cardButton: {fileID: 5889199381552041949}
+  cardBackSprite: {fileID: 21300000, guid: 07c90e5e8a2104ccf93fba5050738203, type: 3}
+  flipDuration: 0.3
+  flipEase: 7
+--- !u!114 &3875549114241925644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6909547005740838154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418fd6037362c4011b0a6e4b19e64a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  view: {fileID: 615694937645065224}

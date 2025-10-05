@@ -8,22 +8,27 @@ namespace CardMatch.Grid
 {
     public class GridView : MonoBehaviour
     {
-        [SerializeField]
-        private CardView cardPrefab;
-        
         private GridConfig gridConfig;
+        private LevelSettings levelSettings;
         private RectTransform gridContainer;
+        private CardModel.Factory cardModelFactory;
+        private CardPresenter.Factory cardPresenterFactory;
 
-        private readonly List<CardView> cards = new();
+        private readonly List<CardPresenter> cards = new();
         private readonly List<CardModel> cardModels = new();
-        private readonly Color[] cardColors = { Color.blue, Color.red, Color.green };
 
         [Inject]
-        private void Construct(GridConfig gridConfig, 
-            [Inject(Id = "GridContainer")] RectTransform gridContainer)
+        private void Construct(GridConfig gridConfig,
+            LevelSettings levelSettings,
+            [Inject(Id = "GridContainer")] RectTransform gridContainer,
+            CardModel.Factory cardModelFactory,
+            CardPresenter.Factory cardPresenterFactory)
         {
             this.gridConfig = gridConfig;
+            this.levelSettings = levelSettings;
             this.gridContainer = gridContainer;
+            this.cardModelFactory = cardModelFactory;
+            this.cardPresenterFactory = cardPresenterFactory;
         }
         
         private void Start()
@@ -36,7 +41,7 @@ namespace CardMatch.Grid
         {
             Clear();
             CreateCardData();
-            CreateCardViews();
+            CreateCardPresenters();
             PositionCards();
         }
 
@@ -62,15 +67,15 @@ namespace CardMatch.Grid
 
             for (var i = 0; i < pairsNeeded; i++)
             {
-                var typeId = i % cardColors.Length;
-
-                cardModels.Add(new CardModel(i, typeId));
-                cardModels.Add(new CardModel(i + 1, typeId));
+                var typeId = i % levelSettings.cardSprites.Length;
+                
+                cardModels.Add(cardModelFactory.Create(i * 2, typeId));
+                cardModels.Add(cardModelFactory.Create(i * 2 + 1, typeId));
             }
 
             ShuffleCards();
         }
-
+        
         private void ShuffleCards()
         {
             for (var i = 0; i < cardModels.Count; i++)
@@ -80,13 +85,12 @@ namespace CardMatch.Grid
             }
         }
 
-        private void CreateCardViews()
+        private void CreateCardPresenters()
         {
             foreach (var cardModel in cardModels)
             {
-                var cardView = Instantiate(cardPrefab, gridContainer);
-                cardView.Initialize(cardColors[cardModel.TypeId]);
-                cards.Add(cardView);
+                var card = cardPresenterFactory.Create(cardModel, levelSettings.cardSprites[cardModel.TypeId]);
+                cards.Add(card);
             }
         }
 
@@ -103,6 +107,8 @@ namespace CardMatch.Grid
                 Vector2 position = CalculateCardPosition(row, col, cardSize);
 
                 var cardRect = cards[i].GetComponent<RectTransform>();
+                cards[i].SetSize(cardSize);
+                cards[i].SetPosition(position);
                 cardRect.sizeDelta = cardSize;
                 cardRect.anchoredPosition = position;
             }
@@ -116,7 +122,6 @@ namespace CardMatch.Grid
                                   gridConfig.cardSpacing * (gridConfig.rows - 1);
 
             var calculatedSize = new Vector2(availableWidth / gridConfig.columns, availableHeight / gridConfig.rows);
-
 
             var aspectRatio = gridConfig.cardSize.x / gridConfig.cardSize.y;
             calculatedSize = calculatedSize.x / aspectRatio <= calculatedSize.y

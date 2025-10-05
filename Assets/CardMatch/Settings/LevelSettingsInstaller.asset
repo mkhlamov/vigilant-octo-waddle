@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: LevelSettingsInstaller
   m_EditorClassIdentifier: 
   gridConfig: {fileID: 11400000, guid: 293cd7f14a4bb407589adddc4bccef1c, type: 2}
+  levelSettings: {fileID: 11400000, guid: d204dd5930a4141dc84660fed4146c26, type: 2}

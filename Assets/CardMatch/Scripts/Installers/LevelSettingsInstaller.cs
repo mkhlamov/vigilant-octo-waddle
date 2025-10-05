@@ -11,9 +11,13 @@ namespace CardMatch.Installers
         [SerializeField]
         private GridConfig gridConfig;
         
+        [SerializeField]
+        private LevelSettings levelSettings;
+        
         public override void InstallBindings()
         {
             Container.BindInstance(gridConfig).AsSingle();
+            Container.BindInstance(levelSettings).AsSingle();
         }
     }
 }
