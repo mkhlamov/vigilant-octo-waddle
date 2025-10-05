@@ -2,25 +2,30 @@ using System.Collections.Generic;
 using CardMatch.Card;
 using CardMatch.Data;
 using UnityEngine;
+using Zenject;
 
 namespace CardMatch.Grid
 {
     public class GridView : MonoBehaviour
     {
-        //TODO move to settings installer
-        [SerializeField]
-        private GridConfig gridConfig;
-
         [SerializeField]
         private CardView cardPrefab;
-
-        [SerializeField]
+        
+        private GridConfig gridConfig;
         private RectTransform gridContainer;
 
         private readonly List<CardView> cards = new();
         private readonly List<CardModel> cardModels = new();
         private readonly Color[] cardColors = { Color.blue, Color.red, Color.green };
 
+        [Inject]
+        private void Construct(GridConfig gridConfig, 
+            [Inject(Id = "GridContainer")] RectTransform gridContainer)
+        {
+            this.gridConfig = gridConfig;
+            this.gridContainer = gridContainer;
+        }
+        
         private void Start()
         {
             //TODO move to bootstrapper
