@@ -30,6 +30,8 @@ namespace CardMatch.Installers
             Container.BindFactory<CardModel, Sprite, CardPresenter, CardPresenter.Factory>()
                 .FromComponentInNewPrefab(cardPresenterPrefab)
                 .UnderTransform(gridContainer);
+            
+            Container.Bind<ICardGenerationService>().To<CardGenerationService>().AsSingle();
         }
     }
 }

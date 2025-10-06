@@ -13,22 +13,25 @@ namespace CardMatch.Grid
         private RectTransform gridContainer;
         private CardModel.Factory cardModelFactory;
         private CardPresenter.Factory cardPresenterFactory;
+        private ICardGenerationService cardGenerationService;
 
         private readonly List<CardPresenter> cards = new();
-        private readonly List<CardModel> cardModels = new();
+        private List<CardModel> cardModels = new();
 
         [Inject]
         private void Construct(GridConfig gridConfig,
             LevelSettings levelSettings,
             [Inject(Id = "GridContainer")] RectTransform gridContainer,
             CardModel.Factory cardModelFactory,
-            CardPresenter.Factory cardPresenterFactory)
+            CardPresenter.Factory cardPresenterFactory,
+            ICardGenerationService cardGenerationService)
         {
             this.gridConfig = gridConfig;
             this.levelSettings = levelSettings;
             this.gridContainer = gridContainer;
             this.cardModelFactory = cardModelFactory;
             this.cardPresenterFactory = cardPresenterFactory;
+            this.cardGenerationService = cardGenerationService;
         }
         
         private void Start()
@@ -40,8 +43,9 @@ namespace CardMatch.Grid
         private void Generate()
         {
             Clear();
-            CreateCardData();
+            cardModels = cardGenerationService.GenerateCards(gridConfig.TotalCards, levelSettings.cardSprites.Length);
             CreateCardPresenters();
+
             PositionCards();
         }
 
@@ -57,32 +61,6 @@ namespace CardMatch.Grid
 
             cards.Clear();
             cardModels.Clear();
-        }
-
-        //TODO refactor
-        private void CreateCardData()
-        {
-            var totalCards = gridConfig.TotalCards;
-            var pairsNeeded = totalCards / 2;
-
-            for (var i = 0; i < pairsNeeded; i++)
-            {
-                var typeId = i % levelSettings.cardSprites.Length;
-                
-                cardModels.Add(cardModelFactory.Create(i * 2, typeId));
-                cardModels.Add(cardModelFactory.Create(i * 2 + 1, typeId));
-            }
-
-            ShuffleCards();
-        }
-        
-        private void ShuffleCards()
-        {
-            for (var i = 0; i < cardModels.Count; i++)
-            {
-                var randomIndex = Random.Range(i, cardModels.Count);
-                (cardModels[i], cardModels[randomIndex]) = (cardModels[randomIndex], cardModels[i]);
-            }
         }
 
         private void CreateCardPresenters()
