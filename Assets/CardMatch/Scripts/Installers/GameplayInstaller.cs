@@ -32,6 +32,7 @@ namespace CardMatch.Installers
                 .UnderTransform(gridContainer);
             
             Container.Bind<ICardGenerationService>().To<CardGenerationService>().AsSingle();
+            Container.Bind<GridLayoutCalculator>().AsSingle();
         }
     }
 }

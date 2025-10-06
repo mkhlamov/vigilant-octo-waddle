@@ -11,9 +11,9 @@ namespace CardMatch.Grid
         private GridConfig gridConfig;
         private LevelSettings levelSettings;
         private RectTransform gridContainer;
-        private CardModel.Factory cardModelFactory;
         private CardPresenter.Factory cardPresenterFactory;
         private ICardGenerationService cardGenerationService;
+        private GridLayoutCalculator gridLayoutCalculator;
 
         private readonly List<CardPresenter> cards = new();
         private List<CardModel> cardModels = new();
@@ -24,14 +24,15 @@ namespace CardMatch.Grid
             [Inject(Id = "GridContainer")] RectTransform gridContainer,
             CardModel.Factory cardModelFactory,
             CardPresenter.Factory cardPresenterFactory,
-            ICardGenerationService cardGenerationService)
+            ICardGenerationService cardGenerationService,
+            GridLayoutCalculator gridLayoutCalculator)
         {
             this.gridConfig = gridConfig;
             this.levelSettings = levelSettings;
             this.gridContainer = gridContainer;
-            this.cardModelFactory = cardModelFactory;
             this.cardPresenterFactory = cardPresenterFactory;
             this.cardGenerationService = cardGenerationService;
+            this.gridLayoutCalculator = gridLayoutCalculator;
         }
         
         private void Start()
@@ -75,52 +76,24 @@ namespace CardMatch.Grid
         private void PositionCards()
         {
             var containerSize = gridContainer.rect.size;
-            var cardSize = CalculateCardSize(containerSize);
+            var cardSize = gridLayoutCalculator.CalculateCardSize(containerSize);
 
             for (var i = 0; i < cards.Count; i++)
             {
-                var row = i / gridConfig.columns;
-                var col = i % gridConfig.columns;
+                var gridPosition = gridLayoutCalculator.CalculateGridPosition(i);
+                var worldPosition = gridLayoutCalculator.CalculateCardPosition(gridPosition.row, gridPosition.col, cardSize);
 
-                Vector2 position = CalculateCardPosition(row, col, cardSize);
-
-                var cardRect = cards[i].GetComponent<RectTransform>();
-                cards[i].SetSize(cardSize);
-                cards[i].SetPosition(position);
-                cardRect.sizeDelta = cardSize;
-                cardRect.anchoredPosition = position;
+                SetupCardTransform(cards[i], cardSize, worldPosition);
             }
         }
-
-        private Vector2 CalculateCardSize(Vector2 containerSize)
+        
+        private void SetupCardTransform(CardPresenter card, Vector2 cardSize, Vector2 position)
         {
-            var availableWidth = containerSize.x - gridConfig.gridPadding.x * 2 -
-                                 gridConfig.cardSpacing * (gridConfig.columns - 1);
-            var availableHeight = containerSize.y - gridConfig.gridPadding.y * 2 -
-                                  gridConfig.cardSpacing * (gridConfig.rows - 1);
-
-            var calculatedSize = new Vector2(availableWidth / gridConfig.columns, availableHeight / gridConfig.rows);
-
-            var aspectRatio = gridConfig.cardSize.x / gridConfig.cardSize.y;
-            calculatedSize = calculatedSize.x / aspectRatio <= calculatedSize.y
-                ? new Vector2(calculatedSize.x, calculatedSize.x / aspectRatio)
-                : new Vector2(calculatedSize.y * aspectRatio, calculatedSize.y);
-
-            return calculatedSize;
-        }
-        
-        private Vector2 CalculateCardPosition(int row, int col, Vector2 cardSize)
-        {
-            var totalWidth = gridConfig.columns * cardSize.x + (gridConfig.columns - 1) * gridConfig.cardSpacing;
-            var totalHeight = gridConfig.rows * cardSize.y + (gridConfig.rows - 1) * gridConfig.cardSpacing;
-        
-            var startX = -totalWidth / 2 + cardSize.x / 2;
-            var startY = totalHeight / 2 - cardSize.y / 2;
-        
-            var x = startX + col * (cardSize.x + gridConfig.cardSpacing);
-            var y = startY - row * (cardSize.y + gridConfig.cardSpacing);
-        
-            return new Vector2(x, y);
+            var cardRect = card.GetComponent<RectTransform>();
+            card.SetSize(cardSize);
+            card.SetPosition(position);
+            cardRect.sizeDelta = cardSize;
+            cardRect.anchoredPosition = position;
         }
     }
 }
