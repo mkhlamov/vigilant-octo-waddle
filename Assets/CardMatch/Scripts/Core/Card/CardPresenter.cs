@@ -1,6 +1,6 @@
 using System;
+using System.Threading.Tasks;
 using CardMatch.Data;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -13,11 +13,11 @@ namespace CardMatch.Card
 
         [Inject]
         private LevelSettings levelSettings;
-        
+
         private CardModel model;
-        
+
         public event Action<CardPresenter> OnCardClicked;
-        
+
         public CardModel Model => model;
         public CardView View => view;
 
@@ -25,52 +25,45 @@ namespace CardMatch.Card
         public void Construct(CardModel model, Sprite cardSprite)
         {
             this.model = model;
-            
+
             view.Initialize(cardSprite, levelSettings.cardBackSprite);
+            view.ResetVisuals();
             view.Button.onClick.AddListener(OnCardClick);
             UpdateView();
         }
-        
+
         private async void OnCardClick()
         {
             if (CanFlip())
             {
-                OnCardClicked?.Invoke(this);
-                
                 model.State = CardState.Flipping;
                 await view.FlipCard(true);
                 model.State = CardState.FaceUp;
                 UpdateView();
-                
-                await FlipBackAfterDelay();
-            }
-        }
-        
-        private async UniTask FlipBackAfterDelay()
-        {
-            await UniTask.Delay(500);
-            
-            if (model.State == CardState.FaceUp)
-            {
-                model.State = CardState.Flipping;
-                await view.FlipCard(false);
-                model.State = CardState.FaceDown;
-                UpdateView();
+
+                OnCardClicked?.Invoke(this);
             }
         }
 
-        
         private bool CanFlip()
         {
             return model.State == CardState.FaceDown;
         }
-        
+
         public void SetMatched()
         {
             model.State = CardState.Matched;
             UpdateView();
         }
-        
+
+        public async Task SetFaceDown()
+        {
+            model.State = CardState.Flipping;
+            await view.FlipCard(false);
+            model.State = CardState.FaceDown;
+            UpdateView();
+        }
+
         public void Dispose()
         {
             if (view && view.Button)
@@ -88,7 +81,7 @@ namespace CardMatch.Card
         {
             view.SetPosition(position);
         }
-        
+
         private void UpdateView()
         {
             switch (model.State)
@@ -108,7 +101,7 @@ namespace CardMatch.Card
                     throw new ArgumentOutOfRangeException();
             }
         }
-        
+
         public class Factory : PlaceholderFactory<CardModel, Sprite, CardPresenter>
         {
         }

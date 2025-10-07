@@ -1,6 +1,9 @@
+using CardMatch.Bootstrap;
 using CardMatch.Card;
+using CardMatch.Core;
 using CardMatch.Data;
 using CardMatch.Grid;
+using CardMatch.Score;
 using UnityEngine;
 using Zenject;
 
@@ -16,9 +19,8 @@ namespace CardMatch.Installers
         
         public override void InstallBindings()
         {
-            Container.Bind<GridView>()
-                .FromComponentInHierarchy()
-                .AsSingle();
+            Container.Bind<GameManager>().AsSingle();
+            Container.Bind<ScoreModel>().AsSingle();
             
             Container.Bind<RectTransform>()
                 .WithId("GridContainer")
@@ -33,6 +35,9 @@ namespace CardMatch.Installers
             
             Container.Bind<ICardGenerationService>().To<CardGenerationService>().AsSingle();
             Container.Bind<GridLayoutCalculator>().AsSingle();
+            Container.Bind<IScoreSaver>().To<PlayerPrefsScoreSaver>().AsSingle();
+            
+            Container.BindInterfacesAndSelfTo<GameplayStarter>().AsSingle().NonLazy();
         }
     }
 }

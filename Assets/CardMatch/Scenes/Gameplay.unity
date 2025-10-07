@@ -215,7 +215,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 629334483}
-  - component: {fileID: 629334484}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -243,18 +242,6 @@ RectTransform:
   m_AnchoredPosition: {x: 403.383, y: 0}
   m_SizeDelta: {x: -806.766, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &629334484
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 629334482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d92e2b0cfd541b0937853b7056da991, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &629478536
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,6 +490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers:
   - {fileID: 11400000, guid: 14ad726c6dbac4dcab438493299ed847, type: 2}
+  - {fileID: 11400000, guid: fe0603223461640bc903609a88c720f3, type: 2}
   _monoInstallers:
   - {fileID: 1586156398}
   _installerPrefabs: []

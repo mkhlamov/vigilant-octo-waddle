@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc22dd129ba4f4382eb8070b61f368f, type: 3}
+  m_Name: ScoreSettingsInstaller
+  m_EditorClassIdentifier: 
+  scoreSettings: {fileID: 11400000, guid: ad9fe5f098b36423b91f19edb0ac4bea, type: 2}

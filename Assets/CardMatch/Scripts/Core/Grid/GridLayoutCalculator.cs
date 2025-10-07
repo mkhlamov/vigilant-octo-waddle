@@ -61,27 +61,7 @@ namespace CardMatch.Grid
 
             return (row, col);
         }
-        
-        public int CalculateLinearIndex(int row, int col)
-        {
-            ValidateGridCoordinates(row, col);
-            return row * gridConfig.columns + col;
-        }
-        
-        public Vector2 GetTotalGridSize(Vector2 cardSize)
-        {
-            return CalculateTotalGridDimensions(cardSize);
-        }
-        
-        public Bounds GetGridBounds(Vector2 cardSize)
-        {
-            var totalDimensions = CalculateTotalGridDimensions(cardSize);
-            var center = Vector3.zero;
-            var size = new Vector3(totalDimensions.x, totalDimensions.y, 0);
-            
-            return new Bounds(center, size);
-        }
-        
+
         private void ValidateGridConfig()
         {
             if (gridConfig.rows <= 0 || gridConfig.columns <= 0)
