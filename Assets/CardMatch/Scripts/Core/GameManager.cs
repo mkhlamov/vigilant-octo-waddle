@@ -16,10 +16,12 @@ namespace CardMatch
         private readonly ScoreModel scoreModel;
         private readonly GridConfig gridConfig;
         private readonly LevelSettings levelSettings;
+        private readonly Levels.LevelManager levelManager;
         private readonly RectTransform gridContainer;
         private readonly CardPresenter.Factory cardPresenterFactory;
         private readonly ICardGenerationService cardGenerationService;
         private readonly GridLayoutCalculator gridLayoutCalculator;
+        private readonly IGameStateStorage gameStateStorage;
 
         public event Action OnGameCompleted;
 
@@ -31,23 +33,36 @@ namespace CardMatch
             ScoreModel scoreModel,
             GridConfig gridConfig,
             LevelSettings levelSettings,
+            Levels.LevelManager levelManager,
             [Inject(Id = "GridContainer")] RectTransform gridContainer,
             CardPresenter.Factory cardPresenterFactory,
             ICardGenerationService cardGenerationService,
-            GridLayoutCalculator gridLayoutCalculator)
+            GridLayoutCalculator gridLayoutCalculator,
+            IGameStateStorage gameStateStorage)
         {
             this.scoreModel = scoreModel;
             this.gridConfig = gridConfig;
             this.levelSettings = levelSettings;
+            this.levelManager = levelManager;
             this.gridContainer = gridContainer;
             this.cardPresenterFactory = cardPresenterFactory;
             this.cardGenerationService = cardGenerationService;
             this.gridLayoutCalculator = gridLayoutCalculator;
+            this.gameStateStorage = gameStateStorage;
         }
 
         public void Initialize()
         {
             scoreModel.Initialize();
+            if (gameStateStorage.HasSavedState(levelManager.LevelIndex))
+            {
+                var state = gameStateStorage.Load(levelManager.LevelIndex);
+                if (state != null)
+                {
+                    RestoreFromState(state);
+                    return;
+                }
+            }
             GenerateCards();
         }
 
@@ -57,6 +72,7 @@ namespace CardMatch
             cardModels = cardGenerationService.GenerateCards(gridConfig.TotalCards, levelSettings.cardSprites.Length);
             CreateCardPresenters();
             PositionCards();
+            SaveState();
         }
 
         private void ClearCards()
@@ -113,6 +129,7 @@ namespace CardMatch
             if (flippedCards.Count == 2)
             {
                 CheckForMatch();
+                SaveState();
             }
         }
 
@@ -143,6 +160,7 @@ namespace CardMatch
                 _ = card2.SetFaceDown();
             }
 
+            SaveState();
             flippedCards.Clear();
         }
 
@@ -164,6 +182,50 @@ namespace CardMatch
             
             allCards.Clear();
             flippedCards.Clear();
+        }
+
+        public void SaveState()
+        {
+            var state = new GameStateData
+            {
+                currentScore = scoreModel.CurrentScore,
+                matchesCount = scoreModel.MatchesCount,
+                attemptsCount = scoreModel.AttemptsCount,
+                cards = new List<CardData>()
+            };
+
+            foreach (var model in allCards.Select(t => t.Model))
+            {
+                state.cards.Add(new CardData
+                {
+                    id = model.ID,
+                    typeId = model.TypeId,
+                    state = (int)model.State
+                });
+            }
+
+            gameStateStorage.Save(levelManager.LevelIndex, state);
+        }
+
+        private void RestoreFromState(GameStateData state)
+        {
+            ClearCards();
+            scoreModel.Load(state.currentScore, state.matchesCount, state.attemptsCount);
+
+            cardModels = new List<CardModel>();
+            foreach (var cd in state.cards)
+            {
+                var model = new CardModel(cd.id, cd.typeId);
+                model.State = (CardState)cd.state;
+                cardModels.Add(model);
+            }
+
+            CreateCardPresenters();
+            PositionCards();
+            foreach (var card in allCards.Where(card => card.Model.State == CardState.FaceUp))
+            {
+                flippedCards.Add(card);
+            }
         }
     }
 }

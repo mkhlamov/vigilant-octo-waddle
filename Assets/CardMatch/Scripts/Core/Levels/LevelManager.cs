@@ -14,6 +14,7 @@ namespace CardMatch.Levels
 		private readonly int levelIndex;
 
 		public LevelSettings LevelSettings { get; }
+		public int LevelIndex => levelIndex;
 
 		public LevelManager(IEnumerable<LevelSettings> availableLevels)
 		{

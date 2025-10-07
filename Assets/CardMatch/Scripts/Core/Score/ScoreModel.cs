@@ -86,5 +86,16 @@ namespace CardMatch.Score
 			OnMatchCountChanged?.Invoke(MatchesCount);
 			OnAttemptCountChanged?.Invoke(AttemptsCount);
 		}
+
+		public void Load(int currentScore, int matchesCount, int attemptsCount)
+		{
+			CurrentScore = Math.Max(0, currentScore);
+			MatchesCount = Math.Max(0, matchesCount);
+			AttemptsCount = Math.Max(0, attemptsCount);
+			currentStreak = 0;
+			OnScoreChanged?.Invoke(CurrentScore);
+			OnMatchCountChanged?.Invoke(MatchesCount);
+			OnAttemptCountChanged?.Invoke(AttemptsCount);
+		}
 	}
 }

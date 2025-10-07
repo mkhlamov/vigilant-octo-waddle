@@ -95,6 +95,7 @@ namespace CardMatch.Card
         public void ShowMatched()
         {
             cardButton.interactable = false;
+            cardImage.sprite = cardFrontSprite;
 
             var color = cardImage.color;
             color.a = 0.3f;

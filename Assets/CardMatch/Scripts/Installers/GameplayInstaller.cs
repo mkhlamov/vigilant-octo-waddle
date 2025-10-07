@@ -41,6 +41,7 @@ namespace CardMatch.Installers
             Container.Bind<ICardGenerationService>().To<CardGenerationService>().AsSingle();
             Container.Bind<GridLayoutCalculator>().AsSingle();
             Container.Bind<IScoreSaver>().To<PlayerPrefsScoreSaver>().AsSingle();
+            Container.Bind<IGameStateStorage>().To<PlayerPrefsGameStateStorage>().AsSingle();
             
             var levelManager = new LevelManager(availableLevels);
             Container.Bind<LevelManager>().FromInstance(levelManager).AsSingle();
@@ -49,6 +50,7 @@ namespace CardMatch.Installers
             
             Container.BindInterfacesAndSelfTo<GameCompletionHandler>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameplayStarter>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<GameStateLifecycle>().AsSingle().NonLazy();
         }
     }
 }
