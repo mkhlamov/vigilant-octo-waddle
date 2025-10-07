@@ -21,6 +21,8 @@ namespace CardMatch
         private readonly ICardGenerationService cardGenerationService;
         private readonly GridLayoutCalculator gridLayoutCalculator;
 
+        public event Action OnGameCompleted;
+
         private readonly List<CardPresenter> flippedCards = new();
         private readonly List<CardPresenter> allCards = new();
         private List<CardModel> cardModels = new();
@@ -131,6 +133,7 @@ namespace CardMatch
                 if (IsGameCompleted())
                 {
                     scoreModel.CompleteGame();
+                    OnGameCompleted?.Invoke();
                 }
             }
             else

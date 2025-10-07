@@ -1,8 +1,10 @@
 using CardMatch.Bootstrap;
 using CardMatch.Card;
 using CardMatch.Core;
+using CardMatch.Core.Levels;
 using CardMatch.Data;
 using CardMatch.Grid;
+using CardMatch.Levels;
 using CardMatch.Score;
 using UnityEngine;
 using Zenject;
@@ -16,6 +18,9 @@ namespace CardMatch.Installers
 
         [SerializeField]
         private GameObject cardPresenterPrefab;
+
+        [SerializeField]
+        private LevelSettings[] availableLevels;
         
         public override void InstallBindings()
         {
@@ -37,6 +42,12 @@ namespace CardMatch.Installers
             Container.Bind<GridLayoutCalculator>().AsSingle();
             Container.Bind<IScoreSaver>().To<PlayerPrefsScoreSaver>().AsSingle();
             
+            var levelManager = new LevelManager(availableLevels);
+            Container.Bind<LevelManager>().FromInstance(levelManager).AsSingle();
+            Container.Bind<LevelSettings>().FromInstance(levelManager.LevelSettings).AsSingle();
+            Container.Rebind<GridConfig>().FromInstance(levelManager.LevelSettings.gridConfig).AsSingle();
+            
+            Container.BindInterfacesAndSelfTo<GameCompletionHandler>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameplayStarter>().AsSingle().NonLazy();
         }
     }
