@@ -51,6 +51,18 @@ namespace CardMatch.Installers
             Container.BindInterfacesAndSelfTo<GameCompletionHandler>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameplayStarter>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameStateLifecycle>().AsSingle().NonLazy();
+
+            InstallSignals();
+        }
+
+        private void InstallSignals()
+        {
+            SignalBusInstaller.Install(Container);
+            
+            Container.DeclareSignal<CardFlipSignal>();
+            Container.DeclareSignal<CardMatchSignal>();
+            Container.DeclareSignal<CardMismatchSignal>();
+            Container.DeclareSignal<GameOverSignal>();
         }
     }
 }

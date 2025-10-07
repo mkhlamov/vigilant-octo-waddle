@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CardMatch.Audio;
 using CardMatch.Card;
 using CardMatch.Data;
 using CardMatch.Grid;
@@ -22,6 +23,7 @@ namespace CardMatch
         private readonly ICardGenerationService cardGenerationService;
         private readonly GridLayoutCalculator gridLayoutCalculator;
         private readonly IGameStateStorage gameStateStorage;
+        private readonly SignalBus signalBus;
 
         public event Action OnGameCompleted;
 
@@ -38,7 +40,8 @@ namespace CardMatch
             CardPresenter.Factory cardPresenterFactory,
             ICardGenerationService cardGenerationService,
             GridLayoutCalculator gridLayoutCalculator,
-            IGameStateStorage gameStateStorage)
+            IGameStateStorage gameStateStorage,
+            SignalBus signalBus)
         {
             this.scoreModel = scoreModel;
             this.gridConfig = gridConfig;
@@ -49,6 +52,7 @@ namespace CardMatch
             this.cardGenerationService = cardGenerationService;
             this.gridLayoutCalculator = gridLayoutCalculator;
             this.gameStateStorage = gameStateStorage;
+            this.signalBus = signalBus;
         }
 
         public void Initialize()
@@ -143,6 +147,7 @@ namespace CardMatch
             if (card1.Model.TypeId == card2.Model.TypeId)
             {
                 scoreModel.AddMatch();
+                signalBus.Fire<CardMatchSignal>();
                 
                 card1.SetMatched();
                 card2.SetMatched();
@@ -150,12 +155,14 @@ namespace CardMatch
                 if (IsGameCompleted())
                 {
                     scoreModel.CompleteGame();
+                    signalBus.Fire<GameOverSignal>();
                     OnGameCompleted?.Invoke();
                 }
             }
             else
             {
                 scoreModel.SubtractPenalty();
+                signalBus.Fire<CardMismatchSignal>();
                 _ = card1.SetFaceDown();
                 _ = card2.SetFaceDown();
             }

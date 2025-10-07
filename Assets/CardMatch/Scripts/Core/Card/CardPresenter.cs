@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CardMatch.Audio;
 using CardMatch.Data;
 using UnityEngine;
 using Zenject;
@@ -13,6 +14,9 @@ namespace CardMatch.Card
 
         [Inject]
         private LevelSettings levelSettings;
+
+        [Inject]
+        private SignalBus signalBus;
 
         private CardModel model;
 
@@ -37,6 +41,7 @@ namespace CardMatch.Card
             if (CanFlip())
             {
                 model.State = CardState.Flipping;
+                signalBus.Fire<CardFlipSignal>();
                 await view.FlipCard(true);
                 model.State = CardState.FaceUp;
                 UpdateView();
@@ -59,6 +64,7 @@ namespace CardMatch.Card
         public async Task SetFaceDown()
         {
             model.State = CardState.Flipping;
+            signalBus.Fire<CardFlipSignal>();
             await view.FlipCard(false);
             model.State = CardState.FaceDown;
             UpdateView();
