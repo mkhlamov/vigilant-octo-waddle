@@ -26,6 +26,7 @@ namespace CardMatch.Installers
         public override void InstallBindings()
         {
             Container.Bind<GameManager>().AsSingle();
+            Container.Bind<CardManager>().AsSingle();
             Container.Bind<ScoreModel>().AsSingle();
 
             Container.Bind<RectTransform>()

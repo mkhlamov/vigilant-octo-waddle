@@ -19,18 +19,13 @@ namespace CardMatch
         private readonly GridConfig gridConfig;
         private readonly LevelSettings levelSettings;
         private readonly Levels.LevelManager levelManager;
-        private readonly RectTransform gridContainer;
-        private readonly CardPresenter.Factory cardPresenterFactory;
         private readonly ICardGenerationService cardGenerationService;
-        private readonly GridLayoutCalculator gridLayoutCalculator;
         private readonly IGameStateStorage gameStateStorage;
         private readonly SignalBus signalBus;
-        private readonly ContainerResizeDetector resizeDetector;
+        private readonly CardManager cardManager;
 
         public event Action OnGameCompleted;
 
-        private readonly List<CardPresenter> flippedCards = new();
-        private readonly List<CardPresenter> allCards = new();
         private List<CardModel> cardModels = new();
 
         public GameManager(
@@ -38,27 +33,21 @@ namespace CardMatch
             GridConfig gridConfig,
             LevelSettings levelSettings,
             Levels.LevelManager levelManager,
-            [Inject(Id = "GridContainer")] RectTransform gridContainer,
-            CardPresenter.Factory cardPresenterFactory,
             ICardGenerationService cardGenerationService,
-            GridLayoutCalculator gridLayoutCalculator,
             IGameStateStorage gameStateStorage,
             SignalBus signalBus,
-            ContainerResizeDetector resizeDetector)
+            CardManager cardManager)
         {
             this.scoreModel = scoreModel;
             this.gridConfig = gridConfig;
             this.levelSettings = levelSettings;
             this.levelManager = levelManager;
-            this.gridContainer = gridContainer;
-            this.cardPresenterFactory = cardPresenterFactory;
             this.cardGenerationService = cardGenerationService;
-            this.gridLayoutCalculator = gridLayoutCalculator;
             this.gameStateStorage = gameStateStorage;
             this.signalBus = signalBus;
-            this.resizeDetector = resizeDetector;
+            this.cardManager = cardManager;
             
-            this.resizeDetector.OnContainerSizeChanged += OnContainerSizeChanged;
+            this.cardManager.OnCardClicked += OnCardClicked;
         }
 
         public void Initialize()
@@ -78,66 +67,17 @@ namespace CardMatch
 
         private void GenerateCards()
         {
-            ClearCards();
             cardModels = cardGenerationService.GenerateCards(gridConfig.TotalCards, levelSettings.cardSprites.Length);
-            CreateCardPresenters();
-            PositionCards();
+            cardManager.CreateCards(cardModels);
             SaveState();
         }
 
-        private void ClearCards()
-        {
-            for (var i = 0; i < allCards.Count; i++)
-            {
-                var card = allCards[i];
-                if (card)
-                {
-                    card.OnCardClicked -= OnCardClicked;
-                    card.Dispose();
-                    Object.Destroy(card.gameObject);
-                }
-            }
-
-            allCards.Clear();
-            cardModels.Clear();
-            flippedCards.Clear();
-        }
-
-        private void CreateCardPresenters()
-        {
-            foreach (var cardModel in cardModels)
-            {
-                var card = cardPresenterFactory.Create(cardModel, levelSettings.cardSprites[cardModel.TypeId]);
-                card.OnCardClicked += OnCardClicked;
-                allCards.Add(card);
-            }
-        }
-
-        private void PositionCards()
-        {
-            var containerSize = gridContainer.rect.size;
-            var cardSize = gridLayoutCalculator.CalculateCardSize(containerSize);
-
-            for (var i = 0; i < allCards.Count; i++)
-            {
-                var gridPosition = gridLayoutCalculator.CalculateGridPosition(i);
-                var worldPosition = gridLayoutCalculator.CalculateCardPosition(gridPosition.row, gridPosition.col, cardSize);
-
-                SetupCardTransform(allCards[i], cardSize, worldPosition);
-            }
-        }
-
-        private void SetupCardTransform(CardPresenter card, Vector2 cardSize, Vector2 position)
-        {
-            card.SetSize(cardSize);
-            card.SetPosition(position);
-        }
 
         private void OnCardClicked(CardPresenter cardPresenter)
         {
-            flippedCards.Add(cardPresenter);
+            cardManager.AddFlippedCard(cardPresenter);
 
-            if (flippedCards.Count == 2)
+            if (cardManager.GetFlippedCards().Count == 2)
             {
                 CheckForMatch();
             }
@@ -147,6 +87,7 @@ namespace CardMatch
         {
             scoreModel.AddAttempt();
 
+            var flippedCards = cardManager.GetFlippedCards();
             var card1 = flippedCards[0];
             var card2 = flippedCards[1];
 
@@ -155,8 +96,8 @@ namespace CardMatch
                 scoreModel.AddMatch();
                 signalBus.Fire<CardMatchSignal>();
                 
-                card1.SetMatched();
-                card2.SetMatched();
+                cardManager.SetCardMatched(card1);
+                cardManager.SetCardMatched(card2);
                 SaveState();
                 
                 if (IsGameCompleted())
@@ -170,45 +111,27 @@ namespace CardMatch
             {
                 scoreModel.SubtractPenalty();
                 signalBus.Fire<CardMismatchSignal>();
-                _ = card1.SetFaceDown();
-                _ = card2.SetFaceDown();
+                cardManager.SetCardFaceDown(card1);
+                cardManager.SetCardFaceDown(card2);
                 SaveState();
             }
             
-            flippedCards.Clear();
+            cardManager.ClearFlippedCards();
         }
 
         private bool IsGameCompleted()
         {
-            return allCards.All(card => card.Model.State == CardState.Matched);
+            return cardManager.AllCardsMatched();
         }
 
-        private void OnContainerSizeChanged(Vector2 newSize)
-        {
-            if (allCards.Count > 0)
-            {
-                PositionCards();
-            }
-        }
 
         public void Dispose()
         {
-            if (resizeDetector)
+            if (cardManager != null)
             {
-                resizeDetector.OnContainerSizeChanged -= OnContainerSizeChanged;
+                cardManager.OnCardClicked -= OnCardClicked;
+                cardManager.Dispose();
             }
-            
-            foreach (var card in allCards)
-            {
-                if (card)
-                {
-                    card.OnCardClicked -= OnCardClicked;
-                    card.Dispose();
-                }
-            }
-            
-            allCards.Clear();
-            flippedCards.Clear();
         }
 
         public void SaveState()
@@ -221,10 +144,9 @@ namespace CardMatch
                 cards = new List<CardData>()
             };
 
-            for (var i = 0; i < allCards.Count; i++)
+            for (var i = 0; i < cardModels.Count; i++)
             {
-                var t = allCards[i];
-                var model = t.Model;
+                var model = cardModels[i];
                 state.cards.Add(new CardData { id = model.ID, typeId = model.TypeId, state = (int)model.State });
             }
 
@@ -233,7 +155,6 @@ namespace CardMatch
 
         private void RestoreFromState(GameStateData state)
         {
-            ClearCards();
             scoreModel.Load(state.currentScore, state.matchesCount, state.attemptsCount);
 
             cardModels = new List<CardModel>();
@@ -245,16 +166,7 @@ namespace CardMatch
                 cardModels.Add(model);
             }
 
-            CreateCardPresenters();
-            PositionCards();
-            for (var i = 0; i < allCards.Count; i++)
-            {
-                var card = allCards[i];
-                if (card.Model.State == CardState.FaceUp)
-                {
-                    flippedCards.Add(card);
-                }
-            }
+            cardManager.RestoreFromState(cardModels);
         }
     }
 }
