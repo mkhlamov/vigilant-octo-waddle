@@ -81,13 +81,14 @@ namespace CardMatch
 
         private void ClearCards()
         {
-            foreach (var card in allCards)
+            for (var i = 0; i < allCards.Count; i++)
             {
+                var card = allCards[i];
                 if (card)
                 {
                     card.OnCardClicked -= OnCardClicked;
                     card.Dispose();
-                    Object.DestroyImmediate(card.gameObject);
+                    Object.Destroy(card.gameObject);
                 }
             }
 
@@ -201,14 +202,11 @@ namespace CardMatch
                 cards = new List<CardData>()
             };
 
-            foreach (var model in allCards.Select(t => t.Model))
+            for (var i = 0; i < allCards.Count; i++)
             {
-                state.cards.Add(new CardData
-                {
-                    id = model.ID,
-                    typeId = model.TypeId,
-                    state = (int)model.State
-                });
+                var t = allCards[i];
+                var model = t.Model;
+                state.cards.Add(new CardData { id = model.ID, typeId = model.TypeId, state = (int)model.State });
             }
 
             gameStateStorage.Save(levelManager.LevelIndex, state);
@@ -220,8 +218,9 @@ namespace CardMatch
             scoreModel.Load(state.currentScore, state.matchesCount, state.attemptsCount);
 
             cardModels = new List<CardModel>();
-            foreach (var cd in state.cards)
+            for (var i = 0; i < state.cards.Count; i++)
             {
+                var cd = state.cards[i];
                 var model = new CardModel(cd.id, cd.typeId);
                 model.State = (CardState)cd.state;
                 cardModels.Add(model);
@@ -229,9 +228,13 @@ namespace CardMatch
 
             CreateCardPresenters();
             PositionCards();
-            foreach (var card in allCards.Where(card => card.Model.State == CardState.FaceUp))
+            for (var i = 0; i < allCards.Count; i++)
             {
-                flippedCards.Add(card);
+                var card = allCards[i];
+                if (card.Model.State == CardState.FaceUp)
+                {
+                    flippedCards.Add(card);
+                }
             }
         }
     }
