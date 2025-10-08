@@ -6,6 +6,7 @@ using CardMatch.Card;
 using CardMatch.Data;
 using CardMatch.Grid;
 using CardMatch.Score;
+using CardMatch.UI;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -24,6 +25,7 @@ namespace CardMatch
         private readonly GridLayoutCalculator gridLayoutCalculator;
         private readonly IGameStateStorage gameStateStorage;
         private readonly SignalBus signalBus;
+        private readonly ContainerResizeDetector resizeDetector;
 
         public event Action OnGameCompleted;
 
@@ -41,7 +43,8 @@ namespace CardMatch
             ICardGenerationService cardGenerationService,
             GridLayoutCalculator gridLayoutCalculator,
             IGameStateStorage gameStateStorage,
-            SignalBus signalBus)
+            SignalBus signalBus,
+            ContainerResizeDetector resizeDetector)
         {
             this.scoreModel = scoreModel;
             this.gridConfig = gridConfig;
@@ -53,6 +56,9 @@ namespace CardMatch
             this.gridLayoutCalculator = gridLayoutCalculator;
             this.gameStateStorage = gameStateStorage;
             this.signalBus = signalBus;
+            this.resizeDetector = resizeDetector;
+            
+            this.resizeDetector.OnContainerSizeChanged += OnContainerSizeChanged;
         }
 
         public void Initialize()
@@ -177,8 +183,21 @@ namespace CardMatch
             return allCards.All(card => card.Model.State == CardState.Matched);
         }
 
+        private void OnContainerSizeChanged(Vector2 newSize)
+        {
+            if (allCards.Count > 0)
+            {
+                PositionCards();
+            }
+        }
+
         public void Dispose()
         {
+            if (resizeDetector)
+            {
+                resizeDetector.OnContainerSizeChanged -= OnContainerSizeChanged;
+            }
+            
             foreach (var card in allCards)
             {
                 if (card)
