@@ -1,11 +1,11 @@
 using CardMatch.Bootstrap;
 using CardMatch.Card;
-using CardMatch.Core;
 using CardMatch.Core.Levels;
 using CardMatch.Data;
 using CardMatch.Grid;
 using CardMatch.Levels;
 using CardMatch.Score;
+using CardMatch.UI.Score;
 using UnityEngine;
 using Zenject;
 
@@ -51,6 +51,9 @@ namespace CardMatch.Installers
             Container.BindInterfacesAndSelfTo<GameCompletionHandler>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameplayStarter>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameStateLifecycle>().AsSingle().NonLazy();
+            
+            // Bind UI components
+            Container.BindInterfacesAndSelfTo<GameScreenPresenter>().FromComponentsInHierarchy().AsSingle().NonLazy();
 
             InstallSignals();
         }

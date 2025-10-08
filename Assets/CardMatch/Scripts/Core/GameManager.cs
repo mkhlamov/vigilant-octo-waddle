@@ -57,7 +57,7 @@ namespace CardMatch
 
         public void Initialize()
         {
-            scoreModel.Initialize();
+            scoreModel.Initialize(levelManager.LevelIndex);
             if (gameStateStorage.HasSavedState(levelManager.LevelIndex))
             {
                 var state = gameStateStorage.Load(levelManager.LevelIndex);
@@ -133,7 +133,6 @@ namespace CardMatch
             if (flippedCards.Count == 2)
             {
                 CheckForMatch();
-                SaveState();
             }
         }
 
@@ -151,10 +150,11 @@ namespace CardMatch
                 
                 card1.SetMatched();
                 card2.SetMatched();
+                SaveState();
                 
                 if (IsGameCompleted())
                 {
-                    scoreModel.CompleteGame();
+                    scoreModel.CompleteGame(levelManager.LevelIndex);
                     signalBus.Fire<GameOverSignal>();
                     OnGameCompleted?.Invoke();
                 }
@@ -165,9 +165,9 @@ namespace CardMatch
                 signalBus.Fire<CardMismatchSignal>();
                 _ = card1.SetFaceDown();
                 _ = card2.SetFaceDown();
+                SaveState();
             }
-
-            SaveState();
+            
             flippedCards.Clear();
         }
 

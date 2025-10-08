@@ -2,7 +2,7 @@ namespace CardMatch.Score
 {
 	public interface IScoreSaver
 	{
-		int GetBestScore();
-		void SetBestScore(int score);
+		int GetBestScore(int levelIndex);
+		void SetBestScore(int levelIndex, int score);
 	}
 }

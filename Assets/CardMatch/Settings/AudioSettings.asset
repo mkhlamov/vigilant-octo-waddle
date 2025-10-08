@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54f4dcdb89afa41f0aeea0066c39a996, type: 3}
   m_Name: AudioSettings
   m_EditorClassIdentifier: 
-  cardFlipSound: {fileID: 0}
-  cardMatchSound: {fileID: 0}
-  cardMismatchSound: {fileID: 0}
-  gameOverSound: {fileID: 0}
+  cardFlipSound: {fileID: 8300000, guid: 99e5d7351b1224fd18f5f78a33d1f39f, type: 3}
+  cardMatchSound: {fileID: 8300000, guid: 0083c29a34f6b4c2fac8efb65a25697a, type: 3}
+  cardMismatchSound: {fileID: 8300000, guid: f897970e52cee4a6a97292bad99da97b, type: 3}
+  gameOverSound: {fileID: 8300000, guid: ba457da1ecd3940ccb7c04efa5b0b941, type: 3}
   volume: 1

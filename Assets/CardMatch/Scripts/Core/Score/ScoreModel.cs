@@ -27,13 +27,13 @@ namespace CardMatch.Score
 			this.scoreSaver = scoreSaver;
 		}
 
-		public void Initialize()
+		public void Initialize(int levelIndex)
 		{
 			CurrentScore = 0;
 			MatchesCount = 0;
 			AttemptsCount = 0;
 			currentStreak = 0;
-			BestScore = scoreSaver.GetBestScore();
+			BestScore = scoreSaver.GetBestScore(levelIndex);
 		}
 
 		public void AddMatch()
@@ -65,12 +65,12 @@ namespace CardMatch.Score
 			OnScoreChanged?.Invoke(CurrentScore);
 		}
 
-		public void CompleteGame()
+		public void CompleteGame(int levelIndex)
 		{
 			if (CurrentScore > BestScore)
 			{
 				BestScore = CurrentScore;
-				scoreSaver.SetBestScore(BestScore);
+				scoreSaver.SetBestScore(levelIndex, BestScore);
 				OnNewBestScore?.Invoke(BestScore);
 			}
 			Debug.Log($"Game completed. Score: {CurrentScore}, Best score: {BestScore}");

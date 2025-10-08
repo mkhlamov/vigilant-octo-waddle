@@ -41,6 +41,8 @@ namespace CardMatch.Data
         {
             PlayerPrefs.DeleteKey(GetKey(levelIndex));
             PlayerPrefs.Save();
+
+            var has = HasSavedState(levelIndex);
         }
 
         private string GetKey(int levelIndex)
