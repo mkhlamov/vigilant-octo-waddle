@@ -854,6 +854,8 @@ MonoBehaviour:
   availableLevels:
   - {fileID: 11400000, guid: d204dd5930a4141dc84660fed4146c26, type: 2}
   - {fileID: 11400000, guid: c4b90c40dde0c4b13ae049b662b6b5e6, type: 2}
+  - {fileID: 11400000, guid: 9cced3034238b4cb2a0e9d8a5163e523, type: 2}
+  - {fileID: 11400000, guid: a6fa752a39e8e4692a7cee179f81cdf9, type: 2}
 --- !u!114 &1586156399
 MonoBehaviour:
   m_ObjectHideFlags: 0
