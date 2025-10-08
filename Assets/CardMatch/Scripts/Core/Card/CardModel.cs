@@ -24,7 +24,6 @@ namespace CardMatch.Card
     public enum CardState
     {
         FaceDown,
-        Flipping,
         FaceUp,
         Matched
     }

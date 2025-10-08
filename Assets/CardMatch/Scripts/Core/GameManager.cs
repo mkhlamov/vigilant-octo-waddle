@@ -76,6 +76,7 @@ namespace CardMatch
         private void OnCardClicked(CardPresenter cardPresenter)
         {
             cardManager.AddFlippedCard(cardPresenter);
+            SaveState();
 
             if (cardManager.GetFlippedCards().Count == 2)
             {

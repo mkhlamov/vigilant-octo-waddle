@@ -40,7 +40,6 @@ namespace CardMatch.Card
         {
             if (CanFlip())
             {
-                model.State = CardState.Flipping;
                 signalBus.Fire<CardFlipSignal>();
                 await view.FlipCard(true);
                 model.State = CardState.FaceUp;
@@ -63,10 +62,9 @@ namespace CardMatch.Card
 
         public async Task SetFaceDown()
         {
-            model.State = CardState.Flipping;
             signalBus.Fire<CardFlipSignal>();
-            await view.FlipCard(false);
             model.State = CardState.FaceDown;
+            await view.FlipCard(false);
             UpdateView();
         }
 
@@ -100,8 +98,6 @@ namespace CardMatch.Card
                     break;
                 case CardState.Matched:
                     view.ShowMatched();
-                    break;
-                case CardState.Flipping:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

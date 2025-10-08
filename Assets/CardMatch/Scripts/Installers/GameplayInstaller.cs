@@ -54,7 +54,6 @@ namespace CardMatch.Installers
 
             Container.BindInterfacesAndSelfTo<GameCompletionHandler>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<GameplayStarter>().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<GameStateLifecycle>().AsSingle().NonLazy();
             
             Container.BindInterfacesAndSelfTo<GameScreenPresenter>().FromComponentsInHierarchy().AsSingle().NonLazy();
 
