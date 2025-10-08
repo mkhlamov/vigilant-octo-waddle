@@ -73,18 +73,6 @@ namespace CardMatch.Score
 				scoreSaver.SetBestScore(levelIndex, BestScore);
 				OnNewBestScore?.Invoke(BestScore);
 			}
-			Debug.Log($"Game completed. Score: {CurrentScore}, Best score: {BestScore}");
-		}
-
-		public void ResetScore()
-		{
-			CurrentScore = 0;
-			MatchesCount = 0;
-			AttemptsCount = 0;
-			currentStreak = 0;
-			OnScoreChanged?.Invoke(CurrentScore);
-			OnMatchCountChanged?.Invoke(MatchesCount);
-			OnAttemptCountChanged?.Invoke(AttemptsCount);
 		}
 
 		public void Load(int currentScore, int matchesCount, int attemptsCount)
